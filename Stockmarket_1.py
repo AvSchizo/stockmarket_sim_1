@@ -12,9 +12,18 @@ clock = pygame.time.Clock()
 font = pygame.font.Font(None, 36)
 
 poop = [1000, 0]
-direction = 1
+direction = -1
 operating = 200
 upped = (space[1]-operating)/2
+
+xScale = 3
+
+tamps = {
+	pygame.K_1: False,
+	pygame.K_2: False,
+	pygame.K_3: False,
+	pygame.K_4: False,
+}
 
 
 def pissyDissy():
@@ -30,6 +39,26 @@ def pissyDissy():
 
 
 
+def intoBin():
+	tot = 0
+
+	loppy = list(tamps.values())
+	for i in range(len(loppy)):
+		tot += loppy[i]*2**i
+
+	return tot
+
+
+
+def truncIt(num, lev):
+
+	bots = str(num).split(".")
+	if len(bots) == 1:
+		return str(num)
+	return str(num) + bots[1][:lev]
+
+
+
 currentFrame = 0
 while True:
 
@@ -37,6 +66,13 @@ while True:
 
 		if event.type == pygame.QUIT:
 			quit()
+
+		if event.type == pygame.KEYDOWN:
+			if event.key in tamps.keys():
+				if tamps[event.key] == False:
+					tamps[event.key] = True
+				else:
+					tamps[event.key] = False
 
 	currentFrame += 1
 
@@ -53,7 +89,7 @@ while True:
 		20
 	]
 
-	if currentFrame%round(60/(2)) == 0:
+	if currentFrame%round(60/(10)) == 0:
 
 		# direction change
 		if random.randint(1, changeChance[1]) <= changeChance[0]:
@@ -77,15 +113,21 @@ while True:
 	ra = font.render(str(direction), True, "black")
 	screen.blit(ra, (0, 40))
 
+	# xScale
 	mPos = pygame.mouse.get_pos()
-	xScale = int((1/2000)*(mPos[0]**2)+1)
-	if xScale <= 0:
-		xScale = 1
-	# test
 	if pygame.key.get_pressed()[pygame.K_SPACE]:
-		xScale = 0.5
+		xScale = max(1, int((1/2000)*(mPos[0]**2)+1))
+		if pygame.key.get_pressed()[pygame.K_r]:
+			if intoBin() == 0:
+				oaga = 1
+			else:
+				oaga = intoBin()
+			xScale /= oaga
+
+		scaleShow = font.render(truncIt(xScale, 2), True, "black")
 	else:
-		xScale = 1
+		scaleShow = None
+	#
 
 
 	omega = pissyDissy()
@@ -118,6 +160,10 @@ while True:
 			color = "grey"
 
 		pygame.draw.line(screen, color, pointst[i], pointst[i+1])
+
+
+	if scaleShow != None:
+		screen.blit(scaleShow, scaleShow.get_rect(bottomleft=[0, screen.get_height()]))
 		
 
 
